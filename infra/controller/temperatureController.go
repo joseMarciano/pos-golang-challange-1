@@ -22,8 +22,12 @@ func (controller *TemperatureController) FindTemperature(c *fiber.Ctx) error {
 	zipCode := c.Params("zip")
 
 	temperature, err := controller.findTemperatureUseCase.Execute(&find.FindTemperatureUseCaseInput{ZipCode: zipCode})
-	if err != nil {
-		return err
+	if err != nil && err.Error() == "can not find zipcode" {
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
+	}
+
+	if err != nil && err.Error() == "invalid zipcode" {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
 	outputBody = &presenters.TemperatureRequestOutput{

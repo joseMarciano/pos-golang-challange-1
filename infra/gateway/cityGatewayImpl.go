@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"pos-gollang-challenge-1/internal/model"
 	"strings"
@@ -22,6 +23,7 @@ type ResponseApi struct {
 	Gia         string `json:"gia"`
 	Ddd         string `json:"ddd"`
 	Siafi       string `json:"siafi"`
+	Error       bool   `json:"erro"`
 }
 
 func NewCityGatewayImpl() *CityGatewayImpl {
@@ -39,6 +41,10 @@ func (c *CityGatewayImpl) FindByZipCode(zipCode string) (*model.City, error) {
 	err = json.NewDecoder(resp.Body).Decode(&apiResp)
 	if err != nil {
 		return nil, err
+	}
+
+	if apiResp.Error != false {
+		return nil, fmt.Errorf("error: %v", apiResp.Error)
 	}
 
 	return model.NewCity(apiResp.Siafi, apiResp.Cep), nil
